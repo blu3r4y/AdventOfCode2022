@@ -6,9 +6,9 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 
 ## Puzzles
 
-| Day | Puzzle | Solution |
-| --: | :----- | :------- |
-| 1 | **[Day 1](https://adventofcode.com/2022/day/1)** | :snake: [day1.py](src/day1.py) |
+| Day | Puzzle                                                      | Solution                       |
+| --: | :---------------------------------------------------------- | :----------------------------- |
+|   1 | **[Calorie Counting](https://adventofcode.com/2022/day/1)** | :snake: [day1.py](src/day1.py) |
 
 ## Requirements
 
