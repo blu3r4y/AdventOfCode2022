@@ -12,6 +12,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |   2 | **[Rock Paper Scissors](https://adventofcode.com/2022/day/2)**     | :snake: [day2.py](src/day2.py) |
 |   3 | **[Rucksack Reorganization](https://adventofcode.com/2022/day/3)** | :snake: [day3.py](src/day3.py) |
 |   4 | **[Camp Cleanup](https://adventofcode.com/2022/day/4)**            | :snake: [day4.py](src/day4.py) |
+|   5 | **[Supply Stacks](https://adventofcode.com/2022/day/5)**           | :snake: [day5.py](src/day5.py) |
 
 ## Requirements
 
