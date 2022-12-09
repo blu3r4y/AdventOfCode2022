@@ -16,6 +16,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |   6 | **[Tuning Trouble](https://adventofcode.com/2022/day/6)**          | :snake: [day6.py](src/day6.py) |
 |   7 | **[No Space Left On Device](https://adventofcode.com/2022/day/7)** | :snake: [day7.py](src/day7.py) |
 |   8 | **[Treetop Tree House](https://adventofcode.com/2022/day/8)**      | :snake: [day8.py](src/day8.py) |
+|   9 | **[Rope Bridge](https://adventofcode.com/2022/day/9)**             | :snake: [day9.py](src/day9.py) |
 
 ## Requirements
 
