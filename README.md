@@ -18,6 +18,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |   8 | **[Treetop Tree House](https://adventofcode.com/2022/day/8)**      | :snake: [day8.py](src/day8.py)   |
 |   9 | **[Rope Bridge](https://adventofcode.com/2022/day/9)**             | :snake: [day9.py](src/day9.py)   |
 |  10 | **[Cathode-Ray Tube](https://adventofcode.com/2022/day/10)**       | :snake: [day10.py](src/day10.py) |
+|  11 | **[Monkey in the Middle](https://adventofcode.com/2022/day/11)**   | :snake: [day11.py](src/day11.py) |
 
 ## Requirements
 
