@@ -1,6 +1,7 @@
 # Advent of Code 2022, Day 13
 # (c) blu3r4y
 
+import json
 from collections import namedtuple
 from functools import cmp_to_key
 
@@ -68,7 +69,7 @@ def ordered(left, right):
 def load(data):
     for pairs in data.split("\n\n"):
         l, r = pairs.split("\n")
-        l, r = eval(l), eval(r)
+        l, r = json.loads(l), json.loads(r)
         yield Pair(l, r)
 
 
