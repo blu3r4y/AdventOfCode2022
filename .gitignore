@@ -6,6 +6,7 @@
 # templates
 src/day.py
 src/scratchpad*
+src/bluelib/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

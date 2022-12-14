@@ -21,6 +21,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  11 | **[Monkey in the Middle](https://adventofcode.com/2022/day/11)**    | :snake: [day11.py](src/day11.py) |
 |  12 | **[Hill Climbing Algorithm](https://adventofcode.com/2022/day/12)** | :snake: [day12.py](src/day12.py) |
 |  13 | **[Distress Signal](https://adventofcode.com/2022/day/13)**         | :snake: [day13.py](src/day13.py) |
+|  14 | **[Regolith Reservoir](https://adventofcode.com/2022/day/14)**      | :snake: [day14.py](src/day14.py) |
 
 ## Requirements
 
