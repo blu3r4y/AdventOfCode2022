@@ -5,7 +5,7 @@ from collections import namedtuple
 from itertools import combinations
 
 from aocd.models import Puzzle
-from funcy import collecting, print_calls
+from funcy import collecting, lfilter, print_calls
 from parse import parse
 from tqdm import tqdm
 
@@ -20,20 +20,32 @@ def part1(sensors, y=2_000_000):
     occupied = occupied_positions(sensors)
 
     # horizontal bounds for exhaustive scan
-    xmin = min(min(s.sx, s.bx) for s in sensors)
-    xmax = max(max(s.sx, s.bx) for s in sensors)
-    radmax = max(s.radius for s in sensors)
+    xmin = min(s.sx - s.radius for s in sensors)
+    xmax = max(s.sx + s.radius for s in sensors)
 
-    # exhaustive scan of the horizontal line
-    blocked = 0
-    for x in tqdm(range(xmin - radmax, xmax + radmax)):
-        if (x, y) in occupied:
+    # only keep sensors that possibly intersect the horizontal line
+    intersect = lambda s: s.sy - s.radius <= y <= s.sy + s.radius
+    sensors = lfilter(intersect, sensors)
+
+    # scan the entire horizontal line
+    ncells = 0
+    x = xmin
+    while x <= xmax:
+        sensor = within_sensor(x, y, sensors)
+        if sensor is None:
+            x += 1
             continue
-        if in_any_sensor_range(x, y, sensors):
-            blocked += 1
+
+        # jump to the next cell right after this sensor
+        jump = sensor.sx + sensor.radius - abs(sensor.sy - y) + 1
+        ncells += jump - x
+        x = jump
+
+    # do not count the already occupied positions
+    ncells -= sum(1 for (_, oy) in occupied if y == oy)
 
     # number of postions that can contain no beacon
-    return blocked
+    return ncells
 
 
 @print_calls
@@ -60,7 +72,7 @@ def part2(sensors, limit=4_000_000):
             continue
 
         # the first point that is NOT within the range of ANY sensor
-        if not in_any_sensor_range(x, y, sensors):
+        if within_sensor(x, y, sensors) is None:
             return x * 4_000_000 + y
 
 
@@ -79,12 +91,12 @@ def occupied_positions(sensors):
     return beacons | sensors
 
 
-def in_any_sensor_range(x, y, sensors):
+def within_sensor(x, y, sensors):
     # check if the point is within the range of any sensor
     for sensor in sensors:
         dist = abs(sensor.sx - x) + abs(sensor.sy - y)
         if dist <= sensor.radius:
-            return True
+            return sensor
 
 
 def all_sensor_outlines(sensors, pad=0):
