@@ -26,7 +26,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 
 ## Requirements
 
-### Python 3.10
+### Python 3.11
 
 Package requirements are specified in the **[requirements.txt](requirements.txt)** file.
 
