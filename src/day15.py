@@ -2,6 +2,7 @@
 # (c) blu3r4y
 
 from collections import namedtuple
+from itertools import combinations
 
 from aocd.models import Puzzle
 from funcy import collecting, print_calls
@@ -9,24 +10,26 @@ from parse import parse
 from tqdm import tqdm
 
 # coordinates of the sensor (s) and its beacon (b)
-Sensor = namedtuple("Sensor", ["sx", "sy", "bx", "by"])
+RawSensor = namedtuple("RawSensor", ["sx", "sy", "bx", "by"])
+Sensor = namedtuple("Sensor", ["sx", "sy", "bx", "by", "radius"])
 
 
 @print_calls
-def part1(sensors, y=2_000_000, pad=2_000_000):
-    occupied = get_occupied_positions(sensors)
-    radiuses = get_sensor_radiuses(sensors)
+def part1(sensors, y=2_000_000):
+    sensors = process_sensors(sensors)
+    occupied = occupied_positions(sensors)
 
     # horizontal bounds for exhaustive scan
-    xmin = min(min(r.sx, r.bx) for r in sensors)
-    xmax = max(max(r.sx, r.bx) for r in sensors)
+    xmin = min(min(s.sx, s.bx) for s in sensors)
+    xmax = max(max(s.sx, s.bx) for s in sensors)
+    radmax = max(s.radius for s in sensors)
 
-    # exhaustive scan of the horizontal line (with padding)
+    # exhaustive scan of the horizontal line
     blocked = 0
-    for x in tqdm(range(xmin - pad, xmax + pad)):
+    for x in tqdm(range(xmin - radmax, xmax + radmax)):
         if (x, y) in occupied:
             continue
-        if in_any_sensor_range(x, y, sensors, radiuses):
+        if in_any_sensor_range(x, y, sensors):
             blocked += 1
 
     # number of postions that can contain no beacon
@@ -35,25 +38,21 @@ def part1(sensors, y=2_000_000, pad=2_000_000):
 
 @print_calls
 def part2(sensors, limit=4_000_000):
-    occupied = get_occupied_positions(sensors)
-    radiuses = get_sensor_radiuses(sensors)
+    sensors = process_sensors(sensors)
+    occupied = occupied_positions(sensors)
 
-    # look at pairwise sensor distances
-    ireadings = set()
-    for i1, r1 in enumerate(sensors):
-        for i2, r2 in enumerate(sensors):
-            if i1 == i2:
-                continue
+    isensors = set()
+    for s1, s2 in combinations(sensors, 2):
+        # if two sensors are are exactly this far apart
+        # they will leave a gap of exactly 1 between them
+        dist = abs(s1.sx - s2.sx) + abs(s1.sy - s2.sy)
+        if dist == s1.radius + s2.radius + 2:
+            isensors.add(s1)
+            isensors.add(s2)
 
-            # if two sensors are are exactly this far apart
-            # they will leave a gap of exactly 1 between them
-            dist = abs(r1.sx - r2.sx) + abs(r1.sy - r2.sy)
-            if dist == radiuses[i1] + radiuses[i2] + 2:
-                ireadings.add(i1)
-                ireadings.add(i2)
-
-    ireadings = [sensors[i] for i in ireadings]
-    for x, y in all_outlines(ireadings, pad=1):
+    # iterate over remaining sensor borders (start with small radiuses)
+    isensors = sorted(isensors, key=lambda s: s.radius)
+    for x, y in all_sensor_outlines(isensors, pad=1):
         # stay within the specified bounds
         if not (0 <= x <= limit and 0 <= y <= limit):
             continue
@@ -61,66 +60,55 @@ def part2(sensors, limit=4_000_000):
             continue
 
         # the first point that is NOT within the range of ANY sensor
-        if not in_any_sensor_range(x, y, sensors, radiuses):
+        if not in_any_sensor_range(x, y, sensors):
             return x * 4_000_000 + y
 
 
-def get_occupied_positions(sensors):
+@collecting
+def process_sensors(sensors):
+    for s in sensors:
+        # precompute the radius of each sensor
+        radius = abs(s.bx - s.sx) + abs(s.by - s.sy)
+        yield Sensor(*s, radius)
+
+
+def occupied_positions(sensors):
     # positions already occupied by beacons or sensors
-    beacons = set((r.bx, r.by) for r in sensors)
-    sensors = set((r.sx, r.sy) for r in sensors)
+    beacons = set((s.bx, s.by) for s in sensors)
+    sensors = set((s.sx, s.sy) for s in sensors)
     return beacons | sensors
 
 
-@collecting
-def get_sensor_radiuses(sensors):
-    # range of each sensor, i.e., manhattan distance to its beacon
-    for r in sensors:
-        yield abs(r.sx - r.bx) + abs(r.sy - r.by)
-
-
-def in_any_sensor_range(x, y, sensors, radiuses):
+def in_any_sensor_range(x, y, sensors):
     # check if the point is within the range of any sensor
-    for r, limit in zip(sensors, radiuses):
-        dist = abs(r.sx - x) + abs(r.sy - y)
-        if dist <= limit:
+    for sensor in sensors:
+        dist = abs(sensor.sx - x) + abs(sensor.sy - y)
+        if dist <= sensor.radius:
             return True
 
 
-def all_outlines(sensors, pad=0):
-    for r in sensors:
-        yield from sensor_outline(r, pad=pad)
+def all_sensor_outlines(sensors, pad=0):
+    for sensor in sensors:
+        yield from sensor_outline(sensor, pad=pad)
 
 
-def sensor_outline(r, pad=0):
-    dx, dy = abs(r.bx - r.sx), abs(r.by - r.sy)
-    limit = dx + dy + pad
-
+def sensor_outline(sensor, pad=0):
     # all points on the outline of the sensor, i.e.,
     # those that are exactly at the range of the sensor,
     # plus an optional padding to possibly extend the range
-    for y in range(dy + 1 + pad):
-        for x in range(dx + 1 + pad):
-            mx, my = limit - y, limit - x
-            if mx < 0 or my < 0:
-                continue
-
-            yield (r.sx + mx, r.sy + y)
-            yield (r.sx - mx, r.sy + y)
-            yield (r.sx + mx, r.sy - y)
-            yield (r.sx - mx, r.sy - y)
-
-            yield (r.sx + x, r.sy + my)
-            yield (r.sx - x, r.sy + my)
-            yield (r.sx + x, r.sy - my)
-            yield (r.sx - x, r.sy - my)
+    limit = sensor.radius + pad
+    for d in range(limit):
+        yield (sensor.sx + d, sensor.sy + limit - d)
+        yield (sensor.sx - d, sensor.sy + limit - d)
+        yield (sensor.sx + d, sensor.sy - limit + d)
+        yield (sensor.sx - d, sensor.sy - limit + d)
 
 
 @collecting
 def load(data):
     pattern = "Sensor at x={:d}, y={:d}: closest beacon is at x={:d}, y={:d}"
     for line in data.split("\n"):
-        yield Sensor(*parse(pattern, line).fixed)
+        yield RawSensor(*parse(pattern, line).fixed)
 
 
 if __name__ == "__main__":
