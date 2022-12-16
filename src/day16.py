@@ -4,29 +4,29 @@
 from collections import namedtuple
 from itertools import combinations
 from queue import PriorityQueue
-from typing import Callable, Iterable, List, Optional
+from typing import Callable, Dict, Iterable, Optional, Tuple
 
 import networkx as nx
 from aocd.models import Puzzle
-from funcy import lmap, print_calls
+from funcy import print_calls
 from parse import parse
 from tqdm import tqdm
 
 Valve = namedtuple("Valve", ["name", "flow", "childs"])
-State = namedtuple("State", ["curr", "min", "press", "closed"])
+State = namedtuple("State", ["curr", "pre", "min", "press", "closed"])
 
 ACTOR1, ACTOR2 = 0, 1
 
 
 class Solver:
-    def __init__(self, valves: List[Valve]):
+    def __init__(self, valves: Dict[str, Valve]):
         self.valves = valves
         self.childs = None
         self.flows = None
         self.dist = None
 
     def _prepare_fields(self, start: str, transitive: bool = False):
-        G, dist = self._build_graph(self.valves, start, transitive)
+        G, dist = Solver._build_graph(self.valves, start, transitive)
 
         # only the extract graph properties which we actually need
         self.nodes = list(G.nodes)
@@ -39,19 +39,20 @@ class Solver:
 
         # map start string to state
         curr = start if not two_actors else (start, start)
-        state = State(curr, total_minutes, 0, frozenset(self.nodes))
+        pre = None if not two_actors else (None, None)
+        state = State(curr, pre, total_minutes, 0, frozenset(self.nodes))
 
         succ_func = self.successors_two if two_actors else self.successors_one
         est_func = self.estimate_press_two if two_actors else self.estimate_press_one
-        goal = self.astar_search(state, succ_func, est_func, progress=two_actors)
+        goal = Solver.astar_search(state, succ_func, est_func, progress=two_actors)
         return goal.press
 
     ###########################################################################
 
+    @staticmethod
     def astar_search(
-        self,
         start: State,
-        successors_func: Callable[[State], List[State]],
+        successors_func: Callable[[State], Iterable[State]],
         estimator_func: Callable[[State], int],
         progress: bool = False,
     ) -> State:
@@ -66,7 +67,7 @@ class Solver:
         with tqdm(unit="states", disable=not progress) as pbar:
             while not openpq.empty():
                 negative_pressure, current = openpq.get()
-                if self.is_goal(current):
+                if Solver.is_goal(current):
                     goal = current
                     break
 
@@ -83,7 +84,8 @@ class Solver:
         assert goal.press == -negative_pressure
         return goal
 
-    def is_goal(self, s: State) -> bool:
+    @staticmethod
+    def is_goal(s: State) -> bool:
         return s.min == 0 or len(s.closed) == 0
 
     ###########################################################################
@@ -117,12 +119,14 @@ class Solver:
 
         # if this valve has positive flow, can we still open it?
         if (released := self.released_pressure(s, s.curr)) is not None:
-            yield State(s.curr, s.min - 1, s.press + released, s.closed - {s.curr})
+            nxt_press = s.press + released
+            nxt_closed = s.closed - {s.curr}
+            yield State(s.curr, s.curr, s.min - 1, nxt_press, nxt_closed)
 
         # what neighbouring valves can we visit?
         for nxt in self.childs[s.curr]:
             steps = self.dist[s.curr][nxt]
-            yield State(nxt, max(0, s.min - steps), s.press, s.closed)
+            yield State(nxt, s.curr, max(0, s.min - steps), s.press, s.closed)
 
     def successors_two(self, s: State) -> Iterable[State]:
         if s.min == 0:
@@ -141,27 +145,39 @@ class Solver:
             and released2 is not None
         ):
             nxt_press = s.press + released1 + released2
-            yield State(s.curr, remaining_min, nxt_press, s.closed - set(s.curr))
+            nxt_closed = s.closed - set(s.curr)
+            yield State(s.curr, s.curr, remaining_min, nxt_press, nxt_closed)
 
         for n1 in self.childs[s.curr[ACTOR1]]:
             for n2 in self.childs[s.curr[ACTOR2]]:
 
                 # state when actor 1 moves, but actor 2 opens a valve
                 if released2 is not None:
+                    if n1 == s.pre[ACTOR1]:
+                        continue  # don't move back
+
                     nxt = (n1, s.curr[ACTOR2])
                     nxt_press = s.press + released2
                     nxt_closed = s.closed - {s.curr[ACTOR2]}
-                    yield State(nxt, remaining_min, nxt_press, nxt_closed)
+                    yield State(nxt, s.curr, remaining_min, nxt_press, nxt_closed)
 
                 # state when actor 2 moves, but actor 1 opens a valve
                 if released1 is not None:
+                    if n2 == s.pre[ACTOR2]:
+                        continue  # don't move back
+
                     nxt = (s.curr[ACTOR1], n2)
                     nxt_press = s.press + released1
                     nxt_closed = s.closed - {s.curr[ACTOR1]}
-                    yield State(nxt, remaining_min, nxt_press, nxt_closed)
+                    yield State(nxt, s.curr, remaining_min, nxt_press, nxt_closed)
 
-                # state when both actors move
-                yield State((n1, n2), remaining_min, s.press, s.closed)
+        # states when both actors move
+        for n1 in self.childs[s.curr[ACTOR1]]:
+            for n2 in self.childs[s.curr[ACTOR2]]:
+                if n1 == s.pre[ACTOR1] or n2 == s.pre[ACTOR2]:
+                    continue  # don't move back
+
+                yield State((n1, n2), s.curr, remaining_min, s.press, s.closed)
 
     def released_pressure(self, s: State, node) -> Optional[int]:
         flow = self.flows[node]
@@ -171,7 +187,9 @@ class Solver:
     ###########################################################################
 
     @staticmethod
-    def _build_graph(valves: List[Valve], start: str, transitive: bool) -> nx.Graph:
+    def _build_graph(
+        valves: Dict[str, Valve], start: str, transitive: bool
+    ) -> Tuple[nx.Graph, Dict[str, Dict[str, int]]]:
         G = nx.Graph()
         for valve in valves.values():
             for child in valve.childs:
@@ -192,12 +210,12 @@ class Solver:
 
 @print_calls
 def part1(valves, total_minutes=30):
-    return Solver(valves).solve(encode_name("AA"), total_minutes)
+    return Solver(valves).solve("AA", total_minutes)
 
 
 @print_calls
 def part2(valves, total_minutes=26):
-    return Solver(valves).solve(encode_name("AA"), total_minutes, two_actors=True)
+    return Solver(valves).solve("AA", total_minutes, two_actors=True)
 
 
 def load(data):
@@ -211,14 +229,12 @@ def load(data):
         # parse plural string
         if p1 := parse(pattern1, line):
             name, flow, childs = p1.fixed
-            name = encode_name(name)
-            childs = lmap(encode_name, childs.split(", "))
+            childs = childs.split(", ")
 
         # parse singular string
         elif p2 := parse(pattern2, line):
             name, flow, child = p2.fixed
-            name = encode_name(name)
-            childs = [encode_name(child)]
+            childs = [child]
 
         assert name is not None
         assert flow is not None
@@ -226,11 +242,6 @@ def load(data):
         valves[name] = Valve(name, flow, childs)
 
     return valves
-
-
-def encode_name(name: str):
-    # use numeric node names to save memory
-    return ord(name[0]) * 100 + ord(name[1])
 
 
 if __name__ == "__main__":
