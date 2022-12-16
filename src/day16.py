@@ -4,7 +4,7 @@
 from collections import namedtuple
 from itertools import combinations
 from queue import PriorityQueue
-from typing import List
+from typing import Callable, Iterable, List, Optional
 
 import networkx as nx
 from aocd.models import Puzzle
@@ -20,89 +20,98 @@ ACTOR1, ACTOR2 = 0, 1
 
 class Solver:
     def __init__(self, valves: List[Valve]):
-        self._valves = valves
-        self.childs, self.flows, self.dist, self.bound = None, None, None, None
+        self.valves = valves
+        self.childs = None
+        self.flows = None
+        self.dist = None
 
-    def _prepare_fields(self, start: str, total_minutes: int, transitive: bool = False):
-        G, dist = self._build_graph(self._valves, start, transitive)
+    def _prepare_fields(self, start: str, transitive: bool = False):
+        G, dist = self._build_graph(self.valves, start, transitive)
 
         # only the extract graph properties which we actually need
         self.nodes = list(G.nodes)
         self.childs = {n: list(nx.neighbors(G, n)) for n in G.nodes}
-        self.flows = {n: self._valves[n].flow for n in G.nodes}
+        self.flows = {n: self.valves[n].flow for n in G.nodes}
         self.dist = dist
 
-        # upper bound on the total pressure that can be released
-        self.bound = sum(self.flows.values()) * total_minutes
-
-    def solve(self, start: str, total_minutes: int, two_actors: bool = False):
-        self._prepare_fields(start, total_minutes, transitive=not two_actors)
+    def solve(self, start: str, total_minutes: int, two_actors: bool = False) -> int:
+        self._prepare_fields(start, transitive=not two_actors)
 
         # map start string to state
         curr = start if not two_actors else (start, start)
         state = State(curr, total_minutes, 0, frozenset(self.nodes))
 
-        succ_func = self.successors_one if not two_actors else self.successors_two
-        goal = self.astar_search(state, succ_func)
+        succ_func = self.successors_two if two_actors else self.successors_one
+        est_func = self.estimate_press_two if two_actors else self.estimate_press_one
+        goal = self.astar_search(state, succ_func, est_func, progress=two_actors)
         return goal.press
 
     ###########################################################################
 
-    def astar_search(self, start: State, successors_func: callable) -> State:
-        # perform an A* search on the inverse graph, i.e., maximize the pressure
-        # be minimizing the inverse pressure (bound - true pressure)
+    def astar_search(
+        self,
+        start: State,
+        successors_func: Callable[[State], List[State]],
+        estimator_func: Callable[[State], int],
+        progress: bool = False,
+    ) -> State:
+        # perform an A* search on the inverse graph, i.e.,
+        # maximize the pressure be minimizing the negative pressure
         openpq = PriorityQueue()
         openpq.put((0, start))
         closed = {start: 0}
 
-        total_inv_pressure, goal = None, None
+        negative_pressure, goal = None, None
 
-        with tqdm(unit="states") as pbar:
+        with tqdm(unit="states", disable=not progress) as pbar:
             while not openpq.empty():
-                total_inv_pressure, current = openpq.get()
+                negative_pressure, current = openpq.get()
                 if self.is_goal(current):
                     goal = current
                     break
 
                 # just update the progress bar
-                released_pressure = self.bound - total_inv_pressure
-                pbar.set_postfix(total_pressure=released_pressure, refresh=False)
+                pbar.set_postfix(total_pressure=-negative_pressure, refresh=False)
                 pbar.update()
 
                 for succ in successors_func(current):
-                    new_pressure = self.bound - succ.press
-                    if succ not in closed or new_pressure < closed[succ]:
-                        closed[succ] = new_pressure
-                        estimate = self.bound - self.estimate_remaining_pressure(succ)
-                        openpq.put((estimate, succ))
+                    if succ not in closed or succ.press > closed[succ]:
+                        closed[succ] = succ.press
+                        estimate = succ.press + estimator_func(succ)
+                        openpq.put((-estimate, succ))
 
-        assert goal.press == self.bound - total_inv_pressure
+        assert goal.press == -negative_pressure
         return goal
 
-    def is_goal(self, s: State):
+    def is_goal(self, s: State) -> bool:
         return s.min == 0 or len(s.closed) == 0
 
-    def estimate_remaining_pressure(self, s: State):
-        if s.min == 0:
-            return s.press
+    ###########################################################################
 
-        estimate = s.press
-        has_two_actors = isinstance(s.curr, tuple)
+    def estimate_press_one(self, s: State) -> int:
+        estimate = 0
         for target in s.closed:
-            if has_two_actors:
-                dist = min(
-                    self.dist[s.curr[ACTOR1]][target],
-                    self.dist[s.curr[ACTOR2]][target],
-                )
-            else:
-                dist = self.dist[s.curr][target]
+            dist = self.dist[s.curr][target]
             estimate += max(0, s.min - dist) * self.flows[target]
 
+        # make sure that we overestimate the pressure
+        return estimate
+
+    def estimate_press_two(self, s: State):
+        estimate = 0
+        for target in s.closed:
+            dist = min(
+                self.dist[s.curr[ACTOR1]][target],
+                self.dist[s.curr[ACTOR2]][target],
+            )
+            estimate += max(0, s.min - dist) * self.flows[target]
+
+        # make sure that we overestimate the pressure
         return estimate
 
     ###########################################################################
 
-    def successors_one(self, s: State):
+    def successors_one(self, s: State) -> Iterable[State]:
         if s.min == 0:
             return
 
@@ -115,7 +124,7 @@ class Solver:
             steps = self.dist[s.curr][nxt]
             yield State(nxt, max(0, s.min - steps), s.press, s.closed)
 
-    def successors_two(self, s: State):
+    def successors_two(self, s: State) -> Iterable[State]:
         if s.min == 0:
             return
 
@@ -154,7 +163,7 @@ class Solver:
                 # state when both actors move
                 yield State((n1, n2), remaining_min, s.press, s.closed)
 
-    def released_pressure(self, s: State, node):
+    def released_pressure(self, s: State, node) -> Optional[int]:
         flow = self.flows[node]
         if flow > 0 and node in s.closed:
             return flow * (s.min - 1)
