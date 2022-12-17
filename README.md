@@ -23,8 +23,9 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  13 | **[Distress Signal](https://adventofcode.com/2022/day/13)**         | [day13.py](src/day13.py) |             - |             - |
 |  14 | **[Regolith Reservoir](https://adventofcode.com/2022/day/14)**      | [day14.py](src/day14.py) |         23 ms |      1.359 ms |
 |  15 | **[Beacon Exclusion Zone](https://adventofcode.com/2022/day/15)**   | [day15.py](src/day15.py) |      1.080 ms |      1.159 ms |
-|  16 | **[Proboscidea Volcanium](https://adventofcode.com/2022/day/16)**   | [day16.py](src/day16.py) |        575 ms |  7 min 57 sec |
+|  16 | **[Proboscidea Volcanium](https://adventofcode.com/2022/day/16)**   | [day16.py](src/day16.py) |        230 ms |     18.282 ms |
 |  17 | **[Pyroclastic Flow](https://adventofcode.com/2022/day/17)**        | [day17.py](src/day17.py) |        194 ms |        334 ms |
+|  18 | **[TODO](https://adventofcode.com/2022/day/18)**                    | [day18.py](src/day18.py) |             - |             - |
 
 Timings are measured on my laptop in a non-scientific way.
 Empty durations indicate a runtime of less than a few milliseconds.
