@@ -188,17 +188,22 @@ def stop_rock(tower, itop):
 
 
 def shrink_tower(tower):
-    cutoff = None
+    cutoff, pre = len(tower), [EMPTY]
     for i, row in enumerate(reversed(tower)):
 
         # the cutoff point is the first non-empty line
         if not cutoff and row != EMPTY_LINE:
             cutoff = len(tower) - i - 1
 
-        # we split below the first solid line
-        if row == SOLID_LINE:
+        # we split below the first truly solid line or one
+        # that is solid "together with the previous line", e.g.
+        # => pre .#.#.#.
+        # => row #.#.#.#
+        if all(a == SOLID or b == SOLID for a, b in zip(row, pre)):
             height = len(tower) - i
             return height, tower[height : cutoff + 1]
+
+        pre = row
 
     return 0, tower[: cutoff + 1]
 
@@ -236,8 +241,8 @@ if __name__ == "__main__":
 
     ans1 = part1(load(puzzle.input_data))
     assert ans1 == 3163
-    puzzle.answer_a = ans1
+    # puzzle.answer_a = ans1
 
     ans2 = part2(load(puzzle.input_data))
     assert ans2 == 1560932944615
-    puzzle.answer_b = ans2
+    # puzzle.answer_b = ans2
