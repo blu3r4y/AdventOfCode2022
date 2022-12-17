@@ -11,10 +11,7 @@ EMPTY, STONE, SAND = 0, 1, 2
 
 @print_calls
 def part1(grid, x=500, y=0):
-    count = 0
-    while drop(grid, x, y):
-        count += 1
-    return count
+    return solve(grid, x=x, y=y)
 
 
 @print_calls
@@ -24,7 +21,14 @@ def part2(grid, pad=500):
     grid[-1, :] = STONE
 
     # drop sand until the source is blocked
-    return part1(grid, x=500 + pad, y=0)
+    return solve(grid, x=500 + pad, y=0)
+
+
+def solve(grid, x, y):
+    count = 0
+    while drop(grid, x, y):
+        count += 1
+    return count
 
 
 def drop(grid, x, y):
