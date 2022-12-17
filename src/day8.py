@@ -6,12 +6,13 @@ from typing import Literal, Tuple, get_args
 
 import numpy as np
 from aocd.models import Puzzle
-from funcy import ilen, print_calls
+from funcy import ilen, print_calls, print_durations
 
 Orientation = Literal["top", "left", "bot", "right"]
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(grid):
     visible = set()
     los = line_of_sight_skyline
@@ -30,6 +31,7 @@ def part1(grid):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(grid):
     scores = defaultdict(lambda: 1)
     los = line_of_sight_treehouse

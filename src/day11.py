@@ -7,18 +7,20 @@ from operator import __add__, __mul__
 from typing import List, Optional
 
 from aocd.models import Puzzle
-from funcy import collecting, print_calls
+from funcy import collecting, print_calls, print_durations
 from parse import parse
 
 Monkey = namedtuple("Monkey", ["no", "start", "op", "test", "iftrue", "iffalse"])
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(monkeys):
     return solve(monkeys, nrounds=20, div=3)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(monkeys):
     lcm = math.lcm(*[monkey.test for monkey in monkeys])
     return solve(monkeys, nrounds=10_000, mod=lcm)

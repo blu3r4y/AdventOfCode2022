@@ -2,10 +2,11 @@
 # (c) blu3r4y
 
 from aocd.models import Puzzle
-from funcy import first, partition, print_calls
+from funcy import first, partition, print_calls, print_durations
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(rucksacks):
     total = 0
     for sack in rucksacks:
@@ -19,6 +20,7 @@ def part1(rucksacks):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(rucksacks):
     total = 0
     for a, b, c in partition(3, rucksacks):

@@ -2,7 +2,7 @@
 # (c) blu3r4y
 
 from aocd.models import Puzzle
-from funcy import collecting, print_calls
+from funcy import collecting, print_calls, print_durations
 
 ROCK, PAPER, SCISSORS = 1, 2, 3
 LOSE_X, DRAW_Y, WIN_Z = 1, 2, 3
@@ -22,6 +22,7 @@ MOVE_WIN = {ROCK: PAPER, PAPER: SCISSORS, SCISSORS: ROCK}
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(data):
     total = 0
     for opponent, me in data:
@@ -31,6 +32,7 @@ def part1(data):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(data):
     total = 0
     for opponent, outcome in data:

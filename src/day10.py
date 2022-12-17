@@ -4,11 +4,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from aocd.models import Puzzle
-from funcy import collecting, print_calls
+from funcy import collecting, print_calls, print_durations
 from parse import parse
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(instructions):
     cycles = simulate(instructions)
 
@@ -21,6 +22,7 @@ def part1(instructions):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(instructions):
     # use zero-based indexing again
     cycles = simulate(instructions)[1:]

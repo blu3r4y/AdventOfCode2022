@@ -6,12 +6,13 @@ from collections import namedtuple
 from functools import cmp_to_key
 
 from aocd.models import Puzzle
-from funcy import collecting, lcat, print_calls
+from funcy import collecting, lcat, print_calls, print_durations
 
 Pair = namedtuple("Pair", ["left", "right"])
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(pairs):
     total = 0
     for i, pair in enumerate(pairs, 1):
@@ -23,6 +24,7 @@ def part1(pairs):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(pairs):
     # flatten packets and add divider packets
     packets = lcat(pairs) + [[[2]], [[6]]]

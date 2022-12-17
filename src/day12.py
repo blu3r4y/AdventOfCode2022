@@ -5,16 +5,18 @@ from collections import defaultdict
 
 import networkx as nx
 from aocd.models import Puzzle
-from funcy import print_calls
+from funcy import print_calls, print_durations
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(graph, pos):
     start, end = pos["S"][0], pos["E"][0]
     return nx.shortest_path_length(graph, start, end)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(graph, pos):
     # fewest steps from any "a" node to "z" node
     end, lengths = pos["E"][0], []

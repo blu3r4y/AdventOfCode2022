@@ -4,7 +4,7 @@
 from collections import deque, namedtuple
 
 from aocd.models import Puzzle
-from funcy import print_calls
+from funcy import print_calls, print_durations
 from parse import parse
 
 Instruction = namedtuple("Ins", ["n", "start", "end"])
@@ -26,11 +26,13 @@ def solve(data, reverse=False):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(data):
     return solve(data)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(data):
     return solve(data, reverse=True)
 

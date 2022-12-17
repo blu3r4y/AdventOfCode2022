@@ -2,7 +2,7 @@
 # (c) blu3r4y
 
 from aocd.models import Puzzle
-from funcy import print_calls
+from funcy import print_calls, print_durations
 from parse import parse
 
 
@@ -52,6 +52,7 @@ class Node:
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(root, max_size=100_000):
     total = 0
     for dir in root.get_all_dirs():
@@ -63,6 +64,7 @@ def part1(root, max_size=100_000):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(root, disk_size=70_000_000, update_size=30_000_000):
     free_space = disk_size - root.dirsize()
     candidates = []

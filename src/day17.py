@@ -2,7 +2,7 @@
 # (c) blu3r4y
 
 from aocd.models import Puzzle
-from funcy import print_calls
+from funcy import print_calls, print_durations
 
 WIDTH = 7
 LEFT, RIGHT = -1, 1
@@ -19,11 +19,13 @@ ROCKS = [
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(jets):
     return solve(jets, limit=2022)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(jets):
     return solve(jets, limit=1000000000000)
 

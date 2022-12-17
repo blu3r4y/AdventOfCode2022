@@ -8,7 +8,7 @@ from typing import Callable, Dict, Iterable, Optional, Tuple
 
 import networkx as nx
 from aocd.models import Puzzle
-from funcy import print_calls
+from funcy import print_calls, print_durations
 from parse import parse
 from tqdm import tqdm
 
@@ -209,11 +209,13 @@ class Solver:
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(valves, total_minutes=30):
     return Solver(valves).solve("AA", total_minutes)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(valves, total_minutes=26):
     return Solver(valves).solve("AA", total_minutes, two_actors=True)
 

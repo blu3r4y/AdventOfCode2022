@@ -5,7 +5,7 @@ from collections import namedtuple
 from itertools import combinations
 
 from aocd.models import Puzzle
-from funcy import collecting, lfilter, print_calls
+from funcy import collecting, lfilter, print_calls, print_durations
 from parse import parse
 from tqdm import tqdm
 
@@ -15,6 +15,7 @@ Sensor = namedtuple("Sensor", ["sx", "sy", "bx", "by", "radius"])
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(sensors, y=2_000_000):
     sensors = process_sensors(sensors)
     occupied = occupied_positions(sensors)
@@ -49,6 +50,7 @@ def part1(sensors, y=2_000_000):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(sensors, limit=4_000_000):
     sensors = process_sensors(sensors)
     occupied = occupied_positions(sensors)

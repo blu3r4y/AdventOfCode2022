@@ -2,7 +2,7 @@
 # (c) blu3r4y
 
 from aocd.models import Puzzle
-from funcy import partition, print_calls
+from funcy import partition, print_calls, print_durations
 
 
 def solve(data, size):
@@ -14,11 +14,13 @@ def solve(data, size):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(data):
     return solve(data, 4)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(data):
     return solve(data, 14)
 

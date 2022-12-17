@@ -5,18 +5,20 @@ from collections import namedtuple
 
 import numpy as np
 from aocd.models import Puzzle
-from funcy import collecting, print_calls
+from funcy import collecting, print_calls, print_durations
 from parse import parse
 
 Move = namedtuple("Move", ["dir", "len"])
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(moves):
     return solve(moves, nknots=2)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(moves):
     return solve(moves, nknots=10)
 

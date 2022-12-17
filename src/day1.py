@@ -2,10 +2,11 @@
 # (c) blu3r4y
 
 from aocd.models import Puzzle
-from funcy import print_calls
+from funcy import print_calls, print_durations
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(elves):
     calories = []
     for elf in elves:
@@ -17,6 +18,7 @@ def part1(elves):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(elves):
     calories = []
     for elf in elves:

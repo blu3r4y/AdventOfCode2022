@@ -3,18 +3,20 @@
 
 import numpy as np
 from aocd.models import Puzzle
-from funcy import print_calls
+from funcy import print_calls, print_durations
 from parse import parse
 
 EMPTY, STONE, SAND = 0, 1, 2
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(grid, x=500, y=0):
     return solve(grid, x=x, y=y)
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(grid, pad=500):
     # expand grid 2 in y (to draw a floor) and pad in x to make room for sand
     grid = np.pad(grid, ((0, 2), (pad, pad)), mode="constant", constant_values=EMPTY)

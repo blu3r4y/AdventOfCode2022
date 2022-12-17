@@ -2,11 +2,12 @@
 # (c) blu3r4y
 
 from aocd.models import Puzzle
-from funcy import collecting, print_calls
+from funcy import collecting, print_calls, print_durations
 from parse import parse
 
 
 @print_calls
+@print_durations(unit="ms")
 def part1(pairs):
     count = 0
     for a1, a2, b1, b2 in pairs:
@@ -18,6 +19,7 @@ def part1(pairs):
 
 
 @print_calls
+@print_durations(unit="ms")
 def part2(pairs):
     count = 0
     for a1, a2, b1, b2 in pairs:
