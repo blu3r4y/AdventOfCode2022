@@ -24,6 +24,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  14 | **[Regolith Reservoir](https://adventofcode.com/2022/day/14)**      | :snake: [day14.py](src/day14.py) |
 |  15 | **[Beacon Exclusion Zone](https://adventofcode.com/2022/day/15)**   | :snake: [day15.py](src/day15.py) |
 |  16 | **[Proboscidea Volcanium](https://adventofcode.com/2022/day/16)**   | :snake: [day16.py](src/day16.py) |
+|  17 | **[Pyroclastic Flow](https://adventofcode.com/2022/day/17)**        | :snake: [day17.py](src/day17.py) |
 
 ## Requirements
 
