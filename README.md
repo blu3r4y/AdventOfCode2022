@@ -40,8 +40,9 @@ Package requirements are specified in the **[requirements.txt](requirements.txt)
 pip install -r requirements.txt
 ```
 
-You should install the pre-commit hooks that format the code before commit
+You should install the pre-commit hooks and its dependencies to format the code before committing.
 
 ```sh
+pip install pre-commit black isort flake8
 pre-commit install
 ```

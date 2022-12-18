@@ -7,7 +7,6 @@ from itertools import combinations
 from aocd.models import Puzzle
 from funcy import collecting, lfilter, print_calls, print_durations
 from parse import parse
-from tqdm import tqdm
 
 # coordinates of the sensor (s) and its beacon (b)
 RawSensor = namedtuple("RawSensor", ["sx", "sy", "bx", "by"])

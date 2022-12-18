@@ -1,20 +1,16 @@
 # anytree
+# dotmap
+# ipykernel
 # lark
+# pandas
+# plotly
+# pyforever
 # scipy
 # sympy
+# tqdm
 advent-of-code-data~=1.3.2
-black
-dotmap
-flake8
 funcy~=1.17
-ipykernel
-isort
-matplotlib
+matplotlib~=3.6.2
 networkx~=2.8.8
 numpy~=1.23.5
-pandas~=1.5.2
 parse~=1.19.0
-plotly
-pre-commit
-pyforever
-tqdm
