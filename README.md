@@ -25,7 +25,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  15 | **[Beacon Exclusion Zone](https://adventofcode.com/2022/day/15)**   | [day15.py](src/day15.py) |      1.080 ms |      1.159 ms |
 |  16 | **[Proboscidea Volcanium](https://adventofcode.com/2022/day/16)**   | [day16.py](src/day16.py) |        230 ms |     18.282 ms |
 |  17 | **[Pyroclastic Flow](https://adventofcode.com/2022/day/17)**        | [day17.py](src/day17.py) |        194 ms |        334 ms |
-|  18 | **[TODO](https://adventofcode.com/2022/day/18)**                    | [day18.py](src/day18.py) |             - |             - |
+|  18 | **[Boiling Boulders](https://adventofcode.com/2022/day/18)**        | [day18.py](src/day18.py) |        186 ms |         32 ms |
 
 Timings are measured on my laptop in a non-scientific way.
 Empty durations indicate a runtime of less than a few milliseconds.
