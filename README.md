@@ -28,6 +28,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  18 | **[Boiling Boulders](https://adventofcode.com/2022/day/18)**         | [day18.py](src/day18.py) |        186 ms |         32 ms |
 |  19 | **[Not Enough Minerals](https://adventofcode.com/2022/day/19)**      | -                        |               |               |
 |  20 | **[Grove Positioning System](https://adventofcode.com/2022/day/20)** | [day20.py](src/day20.py) |        101 ms |      1.708 ms |
+|  21 | **[Monkey Math](https://adventofcode.com/2022/day/21)**              | [day21.py](src/day21.py) |             - |         56 ms |
 
 Timings are measured on my laptop in a non-scientific way.
 Empty durations indicate a runtime of less than a few milliseconds.
