@@ -2,106 +2,94 @@
 # (c) blu3r4y
 
 from collections import defaultdict
+from typing import Set
 
 from aocd.models import Puzzle
 from funcy import count, print_calls, print_durations
 
 N, NE, E, SE, S, SW, W, NW = -1j, 1 - 1j, 1, 1 + 1j, 1j, 1j - 1, -1, -1 - 1j
 DIRECTIONS = [N, NE, E, SE, S, SW, W, NW]
-FREE, ELF = 0, 1
 
 
 @print_calls
 @print_durations(unit="ms")
-def part1(grid):
+def part1(elves: Set[complex]):
     # simulate a maximum of 10 rounds
-    simulate(grid, round_limit=10)
+    simulate(elves, round_limit=10)
 
     # bounding box around elves
-    elves = [pos for pos, cell in grid.items() if cell == ELF]
     xs, ys = [int(e.real) for e in elves], [int(e.imag) for e in elves]
     xmin, xmax = min(xs), max(xs)
     ymin, ymax = min(ys), max(ys)
 
     # count free cells
-    nfree = 0
-    for y in range(ymin, ymax + 1):
-        for x in range(xmin, xmax + 1):
-            cell = grid.get(x + y * 1j, FREE)
-            nfree += cell == FREE
-
+    nfree = (xmax - xmin + 1) * (ymax - ymin + 1) - len(elves)
     return nfree
 
 
 @print_calls
 @print_durations(unit="ms")
-def part2(grid):
+def part2(elves: Set[complex]):
     # round number until no more elves can move
-    return simulate(grid, round_limit=float("inf "))
+    return simulate(elves, round_limit=float("inf"))
 
 
-def simulate(grid, round_limit):
+def simulate(elves: Set[complex], round_limit: int | float):
     # consideration and proposal order
     propose, index = [N, S, W, E], 0
     consider = [
-        lambda e: free(grid, e, N) and free(grid, e, NE) and free(grid, e, NW),
-        lambda e: free(grid, e, S) and free(grid, e, SE) and free(grid, e, SW),
-        lambda e: free(grid, e, W) and free(grid, e, NW) and free(grid, e, SW),
-        lambda e: free(grid, e, E) and free(grid, e, NE) and free(grid, e, SE),
+        lambda e: e + N not in elves and e + NE not in elves and e + NW not in elves,
+        lambda e: e + S not in elves and e + SE not in elves and e + SW not in elves,
+        lambda e: e + W not in elves and e + NW not in elves and e + SW not in elves,
+        lambda e: e + E not in elves and e + NE not in elves and e + SE not in elves,
     ]
 
-    for round in count():
+    for rnd in count():
+        if rnd >= round_limit:
+            return rnd + 1
 
-        # find all the elves ready to move, i.e. still have elves around them
-        unblocked_elves = []
-        for elf in [pos for pos, cell in grid.items() if cell == ELF]:
-            if any(n == ELF for n in neighbors(grid, elf)):
-                unblocked_elves.append(elf)
-
-        # no more elves to move or round limit reached
-        if len(unblocked_elves) == 0 or round >= round_limit:
-            return round + 1
-
-        # make move proposals
         moves, noverlaps = [], defaultdict(int)
-        for elf in unblocked_elves:
-            move = None
+        for elf in elves:
 
-            for round in range(index, index + 4):
-                round = round % 4
-                if consider[round](elf):
-                    move = propose[round]
+            # skip if no elves are around
+            neighbors = (elf + d for d in DIRECTIONS)
+            if all(n not in elves for n in neighbors):
+                continue
+
+            # make move proposal
+            move = None
+            for rnd in range(index, index + 4):
+                rnd = rnd % 4
+                if consider[rnd](elf):
+                    move = propose[rnd]
                     break
 
             if move is not None:
                 moves.append((elf, move))
                 noverlaps[elf + move] += 1
 
+        # no more elves to move or round limit reached
+        if len(moves) == 0:
+            return rnd + 1
+
         # perform moves
         for elf, move in moves:
             if noverlaps[elf + move] > 1:
                 continue
-            grid[elf] = FREE
-            grid[elf + move] = ELF
+            elves.remove(elf)
+            elves.add(elf + move)
 
         # rotate consideration order
         index = (index + 1) % 4
 
 
-def free(grid, pos, d):
-    return grid.get(pos + d, FREE) == FREE
-
-
-def neighbors(grid, pos):
-    return (grid.get(pos + d, FREE) for d in DIRECTIONS)
-
-
-def load(data):
-    grid = {}
+def load(data) -> Set[complex]:
+    elves = set()
     for y, row in enumerate(data.split("\n")):
         for x, cell in enumerate(row):
-            grid[x + y * 1j] = ELF if cell == "#" else FREE
-    return grid
+            if cell == "#":
+                elves.add(x + y * 1j)
+    return elves
 
 
 if __name__ == "__main__":
