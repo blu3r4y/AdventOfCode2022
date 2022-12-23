@@ -30,6 +30,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  20 | **[Grove Positioning System](https://adventofcode.com/2022/day/20)** | [day20.py](src/day20.py) |        101 ms |      1.708 ms |
 |  21 | **[Monkey Math](https://adventofcode.com/2022/day/21)**              | [day21.py](src/day21.py) |             - |         56 ms |
 |  22 | **[Monkey Map](https://adventofcode.com/2022/day/22)**               | [day22.py](src/day22.py) |             - |             - |
+|  23 | **[Unstable Diffusion](https://adventofcode.com/2022/day/23)**       | [day23.py](src/day23.py) |         96 ms |      8.373 ms |
 
 Timings are measured on my laptop in a non-scientific way.
 Empty durations indicate a runtime of less than a few milliseconds.
