@@ -4,14 +4,12 @@
 from collections import defaultdict
 from functools import cache
 from queue import PriorityQueue
-from typing import Dict, Iterable, List, NamedTuple, Tuple
+from typing import Dict, Iterable, List, NamedTuple
 
 from aocd.models import Puzzle
 from funcy import print_calls, print_durations
 
-H, V = 0, 1
 UP, DOWN, LEFT, RIGHT = -1j, 1j, -1, 1
-WRAP_HV = {UP: V, DOWN: V, LEFT: H, RIGHT: H}
 
 Blizzards = Dict[complex, List[complex]]
 State = NamedTuple("State", [("pos", complex), ("steps", int)])
@@ -23,27 +21,29 @@ class PuzzleSolver:
         blizzards: Blizzards,
         start: complex,
         goal: complex,
-        bounds: Tuple[int, int],
+        width: int,
+        height: int,
     ):
         self.blizzards = blizzards
         self.start = start
         self.goal = goal
-        self.bounds = bounds
+        self.width = width
+        self.height = height
 
     def solve(self, backwards: bool = False):
         # shortest path to goal
-        start_state = State(self.start, 0)
-        goal_state = self.astar_search(start_state)
+        state = State(self.start, 0)
+        state = self.astar_search(state)
         if not backwards:
-            return goal_state.steps
+            return state.steps
 
         # return back to start, then to goal again
         self.start, self.goal = self.goal, self.start
-        goal_state = self.astar_search(goal_state)
+        state = self.astar_search(state)
         self.start, self.goal = self.goal, self.start
-        goal_state = self.astar_search(goal_state)
+        state = self.astar_search(state)
 
-        return goal_state.steps
+        return state.steps
 
     def astar_search(self, start: State):
         openpq = PriorityQueue()
@@ -59,10 +59,9 @@ class PuzzleSolver:
                 break
 
             for succ in self.successor_states(current):
-                new_steps = closed[current] + 1
-                if succ not in closed or new_steps < closed[succ]:
-                    closed[succ] = new_steps
-                    estimate = new_steps + self.estimate_remaining_steps(succ)
+                if succ not in closed or succ.steps < closed[succ]:
+                    closed[succ] = succ.steps
+                    estimate = succ.steps + self.estimate_remaining_steps(succ)
                     openpq.put((estimate, tiebreaker, succ))
                     tiebreaker += 1
 
@@ -88,8 +87,8 @@ class PuzzleSolver:
             # avoid blizzards and out of bounds moves
             if (
                 nxt in blizzards
-                or (nxt.real < 0 or nxt.real > self.bounds[H] - 1)
-                or (nxt.imag < 0 or nxt.imag > self.bounds[V] - 1)
+                or (nxt.real < 0 or nxt.real > self.width - 1)
+                or (nxt.imag < 0 or nxt.imag > self.height - 1)
             ):
                 continue
 
@@ -105,21 +104,11 @@ class PuzzleSolver:
 
         for pos, dirs in self.blizzards.items():
             for dir in dirs:
-                if WRAP_HV[dir] == H:
-                    blizzards[
-                        complex(
-                            real=(pos.real + dir.real * t) % self.bounds[H],
-                            imag=pos.imag,
-                        )
-                    ].append(dir)
-
-                elif WRAP_HV[dir] == V:
-                    blizzards[
-                        complex(
-                            real=pos.real,
-                            imag=(pos.imag + dir.imag * t) % self.bounds[V],
-                        )
-                    ].append(dir)
+                npos = complex(
+                    real=(pos.real + dir.real * t) % self.width,
+                    imag=(pos.imag + dir.imag * t) % self.height,
+                )
+                blizzards[npos].append(dir)
 
         # the blizzard map can be precomputed for each time step
         # and memoized because it will never change for a given time step
@@ -140,7 +129,7 @@ def part2(solver: PuzzleSolver):
 
 def load(data) -> PuzzleSolver:
     blizzards = defaultdict(list)
-    lines = data.split("\n")
+    lines = data.splitlines()
     width, height = len(lines[0]) - 2, len(lines) - 2
 
     # parse the blizzard positions
@@ -153,7 +142,7 @@ def load(data) -> PuzzleSolver:
     # assume start and end positions in the corners
     start, goal = 0 - 1j, (width - 1) + height * 1j
 
-    return PuzzleSolver(blizzards, start, goal, bounds=(width, height))
+    return PuzzleSolver(blizzards, start, goal, width, height)
 
 
 if __name__ == "__main__":
