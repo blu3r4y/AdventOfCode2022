@@ -26,7 +26,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  16 | **[Proboscidea Volcanium](https://adventofcode.com/2022/day/16)**    | [day16.py](src/day16.py) |        230 ms |     18.282 ms |
 |  17 | **[Pyroclastic Flow](https://adventofcode.com/2022/day/17)**         | [day17.py](src/day17.py) |        194 ms |        334 ms |
 |  18 | **[Boiling Boulders](https://adventofcode.com/2022/day/18)**         | [day18.py](src/day18.py) |        186 ms |         32 ms |
-|  19 | **[Not Enough Minerals](https://adventofcode.com/2022/day/19)**      | -                        |               |               |
+|  19 | **[Not Enough Minerals](https://adventofcode.com/2022/day/19)**      | [day19.py](src/day19.py) |      4.662 ms |  6 min 19 sec |
 |  20 | **[Grove Positioning System](https://adventofcode.com/2022/day/20)** | [day20.py](src/day20.py) |        101 ms |      1.708 ms |
 |  21 | **[Monkey Math](https://adventofcode.com/2022/day/21)**              | [day21.py](src/day21.py) |             - |         56 ms |
 |  22 | **[Monkey Map](https://adventofcode.com/2022/day/22)**               | [day22.py](src/day22.py) |             - |             - |
