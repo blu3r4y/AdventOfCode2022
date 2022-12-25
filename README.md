@@ -32,6 +32,7 @@ My solutions for the [AoC 2022](https://adventofcode.com/2022) challenges, writt
 |  22 | **[Monkey Map](https://adventofcode.com/2022/day/22)**               | [day22.py](src/day22.py) |             - |             - |
 |  23 | **[Unstable Diffusion](https://adventofcode.com/2022/day/23)**       | [day23.py](src/day23.py) |         72 ms |      6.982 ms |
 |  24 | **[Blizzard Basin](https://adventofcode.com/2022/day/24)**           | [day24.py](src/day24.py) |      1.205 ms |      3.510 ms |
+|  25 | **[Full of Hot Air](https://adventofcode.com/2022/day/25)**          | [day25.py](src/day25.py) |             - |               |
 
 Timings are measured on my laptop in a non-scientific way.
 Empty durations indicate a runtime of less than a few milliseconds.
